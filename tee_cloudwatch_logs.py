@@ -17,12 +17,16 @@ def main(argv):
     cwlog = CloudWatchLogsWriter(argv[1], "ap-southeast-2")
 
     try:
-        while True:
+        while sys.stdin.readable():
             buff = sys.stdin.readline().strip()
+            if not buff:
+                break
             print (buff)
             if len(buff) > 0:
                 cwlog.put_message(buff)
-    except KeyboardInterrupt:
+            if sys.stdin.closed:
+                break
+    except (EOFError, SystemExit, KeyboardInterrupt, GeneratorExit):
         sys.stdout.flush()
         pass
 
