@@ -10,7 +10,7 @@ def main(argv):
 
     if (len(argv) != 2):
         print('Usage : tail -f {log file}.log | python to_cloudwatch_logs.py {cloudwatch log group}')
-        exit
+        quit()
 
     print('Writing to log group '+argv[1])
 
@@ -21,11 +21,9 @@ def main(argv):
             buff = sys.stdin.readline().strip()
             if not buff:
                 break
-            print (buff)
             if len(buff) > 0:
+                print (buff)
                 cwlog.put_message(buff)
-            if sys.stdin.closed:
-                break
     except (EOFError, SystemExit, KeyboardInterrupt, GeneratorExit):
         sys.stdout.flush()
         pass
@@ -47,7 +45,7 @@ class CloudWatchLogsWriter():
     def create_group_and_stream(self, log_group_name, log_stream_name):
         try:
             self.connection.create_log_group(logGroupName=log_group_name)
-        except self.connection.exceptions.ResourceAlreadyExistsException as e:
+        except self.connection.exceptions.ResourceAlreadyExistsException:
             # Log group already exists so continue as normal
             pass
         self.connection.create_log_stream(logGroupName=log_group_name, logStreamName=log_stream_name)
